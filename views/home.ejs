@@ -1,0 +1,133 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>My Wish List</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        margin-top: 0;
+        text-align: center;
+      }
+
+      form {
+        display: flex;
+        margin-bottom: 20px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        flex-grow: 1;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        margin-left: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #3e8e41;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        background-color: #f8f8f8;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/containers" class="btn btn-primary">Check Container Status</a>
+      <h1>My Wish List</h1>
+      <form method="post" action="/item/add">
+        <input type="text" name="name" placeholder="Enter item name" />
+        <input
+          type="text"
+          name="description"
+          placeholder="Enter item description"
+        />
+        <input type="submit" value="Add" />
+      </form>
+      <h4>Items:</h4>
+      <div class="list-group">
+        <% items.forEach(function(item) { %>
+        <a
+          href="/item/<%= item._id %>"
+          class="list-group-item list-group-item-action"
+        >
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1"><%= item.name %></h5>
+            <small><%= item.id %></small>
+          </div>
+          <p class="mb-1"><%= item.description %></p>
+          <form
+            class="delete-form"
+            action="/item/<%= item._id %>/delete"
+            method="POST"
+          >
+            <button
+              type="submit"
+              class="btn-sm btn-danger"
+              data-id="<%= item._id %>"
+            >
+              Delete
+            </button>
+          </form>
+        </a>
+        <% }); %>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  const deleteForms = document.querySelectorAll(".delete-form");
+  deleteForms.forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const itemId = form.querySelector("button").dataset.id;
+      fetch(`/item/${itemId}/delete`, { method: "DELETE" })
+        .then(() => window.location.reload())
+        .catch((err) => console.log(err));
+    });
+  });
+</script>

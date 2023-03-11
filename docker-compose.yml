@@ -1,0 +1,20 @@
+version: "3"
+services:
+  app:
+    container_name: nodemongo
+    restart: always
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
