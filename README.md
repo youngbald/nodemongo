@@ -5,16 +5,24 @@ This project is written in Node.js and docker, make sure you have these installe
 ## Getting Started
 
 To run this project, use the following command:
+
+```
 npm install
+```
 
 This will install all necessary packages that are used within this project.
 
 Then, run the following command:
+
+```
 docker-compose up
+```
 
 If you are willing to make changes to the code and apply them to the images, you can use the following command:
 
+```
 docker-compose up --build
+```
 
 This allows you to build the program and start the program.
 
@@ -44,3 +52,4 @@ The following features are currently being worked on:
 ### Preview
 
 ![Preview image](preview.png "Preview image")
+![Container image](container.png "Container image")
