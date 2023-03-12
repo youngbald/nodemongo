@@ -5,7 +5,7 @@ const port = 3000;
 const Docker = require("dockerode");
 const docker = new Docker();
 const Item = require("./models/Item");
-
+// const execSync = require('child_process').execSync
 mongoose
   .connect("mongodb://mongo:27017/nodemongo", { useNewUrlParser: true })
   .then(() => console.log("MongoDB Connected"))
@@ -19,6 +19,8 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/containers", async (req, res) => {
   try {
     const data = await docker.listContainers();
+    console.log("list of containers::::")
+    console.log(data)
     const containers = data.map((container) => {
       return {
         name: container.Names[0].substring(1),
@@ -86,7 +88,54 @@ app.delete("/item/:id/delete", (req, res) => {
     .catch((err) => console.log(err));
 });
 
+// connect to db
+app.post("/containers/connect", async(req, res)=>{
+  try {
+    const container = docker.getContainer('8dca88d31f5e893370594474caac4551e4d56103a252178250273f9714f0748e')
+    container.start()
+    console.log('container started successfully')
+  }
+  catch(err){
+      return res.send(
+        "<script>alert('MongoDB is already running'); window.location.href='/';</script>"
+      );
+    
+  }
 
+})
+// turn off db
+
+app.post("/containers/disconnect", async(req, res)=>{
+  console.log('trying to disconnect')
+  try {
+    const containerId = await getContainerID('running')
+    const container = docker.getContainer(containerId)
+    container.stop()
+    console.log('container stopped successfully')
+    return res.redirect("/containers")
+  }
+  catch(err){
+      return res.send(
+        "<script>alert('MongoDB is already disconnected'); window.location.href='/';</script>"
+      );
+    
+  }
+
+
+
+})
+
+async function getContainerID(filterStatus){
+  const containerList = await docker.listContainers(status=filterStatus);
+  console.log('contaienrList:::::')
+  console.log(containerList)
+  for (let container of containerList){
+    if (container.Image === 'mongo'){
+      console.log(container.Id)
+      return container.Id
+    }
+  }
+}
 
 app.listen(port, () => console.log("Server running..."));
 module.exports = app;
