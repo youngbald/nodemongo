@@ -14,13 +14,12 @@ mongoose
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 
-
 // listen to container
 app.get("/containers", async (req, res) => {
   try {
-    const data = await docker.listContainers();
-    console.log("list of containers::::")
-    console.log(data)
+    const data = await docker.listContainers({ all: true });
+    console.log("list of containers::::");
+    console.log(data);
     const containers = data.map((container) => {
       return {
         name: container.Names[0].substring(1),
@@ -40,7 +39,6 @@ app.get("/containers", async (req, res) => {
   }
 });
 
-
 // get items list display at home page
 app.get("/", (req, res) => {
   Item.find()
@@ -48,7 +46,6 @@ app.get("/", (req, res) => {
     .then((items) => res.render("home", { items }))
     .catch((err) => res.status(404).json({ msg: "No items found" }));
 });
-
 
 // add item to the item list
 app.post("/item/add", (req, res) => {
@@ -63,7 +60,6 @@ app.post("/item/add", (req, res) => {
   }
   newItem.save().then((item) => res.redirect("/"));
 });
-
 
 // get item by id
 app.get("/item/:id", async (req, res) => {
@@ -80,7 +76,6 @@ app.get("/item/:id", async (req, res) => {
   }
 });
 
-
 // delete item by id
 app.delete("/item/:id/delete", (req, res) => {
   Item.findByIdAndRemove(req.params.id)
@@ -89,50 +84,40 @@ app.delete("/item/:id/delete", (req, res) => {
 });
 
 // connect to db
-app.post("/containers/connect", async(req, res)=>{
+app.post("/containers/connect", async (req, res) => {
   try {
-    const container = docker.getContainer('8dca88d31f5e893370594474caac4551e4d56103a252178250273f9714f0748e')
-    container.start()
-    console.log('container started successfully')
+    const containerId = await getContainerID();
+    const container = docker.getContainer(containerId);
+    container.start();
+    console.log("container started successfully");
+  } catch (err) {
+    return res.send(
+      "<script>alert('MongoDB is already running'); window.location.href='/';</script>"
+    );
   }
-  catch(err){
-      return res.send(
-        "<script>alert('MongoDB is already running'); window.location.href='/';</script>"
-      );
-    
-  }
-
-})
+});
 // turn off db
 
-app.post("/containers/disconnect", async(req, res)=>{
-  console.log('trying to disconnect')
+app.post("/containers/disconnect", async (req, res) => {
+  console.log("trying to disconnect");
   try {
-    const containerId = await getContainerID('running')
-    const container = docker.getContainer(containerId)
-    container.stop()
-    console.log('container stopped successfully')
-    return res.redirect("/containers")
+    const containerId = await getContainerID();
+    const container = docker.getContainer(containerId);
+    container.stop();
+    console.log("container stopped successfully");
+    return res.redirect("/containers");
+  } catch (err) {
+    return res.send(
+      "<script>alert('MongoDB is already disconnected'); window.location.href='/';</script>"
+    );
   }
-  catch(err){
-      return res.send(
-        "<script>alert('MongoDB is already disconnected'); window.location.href='/';</script>"
-      );
-    
-  }
+});
 
-
-
-})
-
-async function getContainerID(filterStatus){
-  const containerList = await docker.listContainers(status=filterStatus);
-  console.log('contaienrList:::::')
-  console.log(containerList)
-  for (let container of containerList){
-    if (container.Image === 'mongo'){
-      console.log(container.Id)
-      return container.Id
+async function getContainerID() {
+  const containerList = await docker.listContainers({ all: true });
+  for (let container of containerList) {
+    if (container.Image === "mongo") {
+      return container.Id;
     }
   }
 }

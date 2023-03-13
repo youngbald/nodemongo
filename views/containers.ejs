@@ -62,28 +62,13 @@
         <% }); %>
       </tbody>
     </table>
-    <form
-      action="/containers/connect"
-      method="POST"
-    >
-      <button
-        type="submit"
-        class="btn-sm btn-danger"
-      >
-      Connect database
-    </button>
-  </form>
-  <form
-    action="/containers/disconnect"
-    method="POST",
-  >
-    <button
-      type="submit"
-      class="btn-sm btn-danger"
-      
-    >
-    Disconnect database
-  </button>
-  </form>
+    <form action="/containers/connect" method="POST">
+      <button type="submit" class="btn-sm btn-danger">Connect database</button>
+    </form>
+    <form action="/containers/disconnect" method="POST" ,>
+      <button type="submit" class="btn-sm btn-danger">
+        Disconnect database
+      </button>
+    </form>
   </body>
 </html>
